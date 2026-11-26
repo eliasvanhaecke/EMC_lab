@@ -13,6 +13,8 @@
 \usepackage{dirtytalk}
 \usepackage{listings}
 \usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{tabularx}
 
 \title{EMC based design: labo}
 \subtitle{ondertitel?}
@@ -40,34 +42,101 @@
 	\chapter*{Inleiding}
 
 
-
 	\chapter{Individuele labo's}
 
 	\section{Traces}
 	\subsection{Doel en verwachtingen}
+	Het doel van dit labo is het karakteriseren van hoogfrequente transmissielijneffecten en het belang van een ononderbroken retourpad op een FR-4 printplaat via S-parametermetingen ($S_{11}$ en $S_{31}$). Coaxkabels met de bijbehorende kalibratiekit, een momentsleutel en een ESD-polsbandje zijn nodig om het labo correct en veilig uit te voeren. De meting zelf is de S-parametermeting om de reflectie- en transmissiecoëfficiënt over het volledige frequentiebereik te bepalen voor elke testopstelling van elke PCB.
+
+	Bij lage frequenties gedraagt een trace zich als een ideale geleider. Zodra de fysieke lengte van de trace echter vergelijkbaar wordt met een significante fractie van de golflengte ($l \geq \frac{\lambda}{10}$ tot $\frac{\lambda}{20}$), treden transmissielijneffecten op zoals faseverschuivingen, reflecties en staande golven. Voor FR-4 (het PCB-materiaal) ligt de voortplantingssnelheid van het elektromagnetische veld tussen $\SI{1,2e8}{m/s}$ en $\SI{1,5e8}{m/s}$. Naarmate de frequentie stijgt, neemt $S_{21}$ (transmissie) geleidelijk af. Enerzijds komt dit door het skin-effect (de stroom verplaatst zich meer naar de rand van de trace, waardoor de effectieve weerstand stijgt), anderzijds door diëlektrische verliezen in het FR-4-materiaal. Wanneer de elektrische lengte van een lijn overeenkomt met een veelvoud van $\frac{\lambda}{4}$ of $\frac{\lambda}{2}$, ontstaan er scherpe pieken en dalen (resonanties) in zowel $S_{11}$ als $S_{21}$ door constructieve en destructieve interferentie van gereflecteerde golven.
+
+	Bij hoge frequenties zoekt de retourstroom in het grondvlak (\textit{ground plane}) niet de weg van de minste weerstand, maar de weg van de minste inductantie. Bij vergroting van de stroomlus door een groef of sleuf kan de retourstroom niet rechtdoor terugvloeien. De stroom wordt gedwongen om via een langer pad rond de onderbreking heen te lopen. Doordat de fysieke oppervlakte van de stroomlus drastisch toeneemt, stijgt de lokale zelfinductie $L$ sterk. Dit leidt tot sterke reflecties en een daling van de doorgelaten energie. Een grote stroomlus waarin een hoogfrequente stroom loopt, gedraagt zich elektromagnetisch als een lusantenne.
+
+	\begin{table}[htbp]
+		\centering
+		\caption{Overzicht van de verwachte fysische eigenschappen en S-parametervoorspellingen per PCB-structuur.}
+		\label{tab:traces_verwachtingen}
+		\renewcommand{\arraystretch}{1.3}
+		\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3.2cm} X X}
+			\toprule
+			\textbf{Omschrijving PCB} & \textbf{Verwacht fysisch gedrag} & \textbf{Voorspelling voor $S_{11}$ \& $S_{31}$} \\
+			\midrule
+			Volledige trace (ononderbroken grondvlak) & Laag-impedant retourpad direct onder de trace. Minimale lusoppervlakte, constante $Z_0$ en goede afscherming van de velden. & Lage reflectie. Vlak verloop van $S_{31}$ met enkel een geleidelijke daling bij hogere frequenties door skin-effect en FR-4-materiaal. \\
+			\addlinespace
+			Trace met groeven (onderbroken retourpad) & De retourstroom moet om de groeven heen lopen. Dit creëert een grote stroomlus, verhoogt de lusinductantie $L$ en veroorzaakt antennewerking. & Sterke impedantiesprong zorgt voor hoge reflectie. In $S_{21}$ ontstaan scherpe resonantiedalen en extra verlies door weggestraalde energie. \\
+			\addlinespace
+			Lus-structuur (meander/loop) & De extra fysieke padlengte verlaagt de resonantiefrequentie. Daarnaast treedt er lokale magnetische en capacitieve koppeling op tussen de parallelle segmenten van de lus. & Duidelijke verschuiving van de $\frac{\lambda}{4}$- of $\frac{\lambda}{2}$-resonanties naar lagere frequenties. Extra verlies en straling door de lusvorm. \\
+			\addlinespace
+			Twee traces op grote afstand & De elektromagnetische velden van beide lijnen overlappen nauwelijks. Wederzijdse inductie en koppelingscapaciteit zijn verwaarloosbaar klein. & Beide sporen gedragen zich als onafhankelijke transmissielijnen. Minimale crosstalk tussen de lijnen. \\
+			\addlinespace
+			Twee traces dicht bij elkaar & Sterke elektromagnetische koppeling tussen de aangrenzende sporen, wat de effectieve $Z_0$ beïnvloedt. & Afwijking van de impedantie leidt tot sterkere reflecties en uitgesproken resonantiepieken/-dalen afhankelijk van de gekoppelde lengte. \\
+			\bottomrule
+		\end{tabularx}
+	\end{table}
+
 	\subsection{Meetopstelling}
-	\subsection{Resultaten}
-	\subsection{Interpretatie}
+	De metingen zelf zijn uitgevoerd over het volledige bereik van de Vector Network Analyzer (VNA), namelijk van $\SI{10}{MHz}$ (\textit{Start Frequency}) tot $\SI{43,5}{GHz}$ (\textit{Stop Frequency}). Het uitgestuurde vermogen bedraagt $\SI{-10}{dBm}$ (\textit{Power}). Het aantal meetpunten is ingesteld op $1001$ (\textit{Number of Points}) om een zo duidelijk mogelijk beeld te krijgen van het gemeten signaal. Voorafgaand aan de metingen zijn de coaxkabels correct vastgezet met een momentsleutel, zodat het signaal betrouwbaar aankomt op de VNA en nauwkeurig geïnterpreteerd kan worden.
+
+	\subsection{Resultaten en interpretatie}
+
+	\subsubsection{PCB 1}
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.95\textwidth]{pcb1_magnitude.png}
+		\caption{Gemeten magnitude per testopstelling voor PCB 1.}
+		\label{fig:pcb1_magnitude}
+	\end{figure}
+
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.95\textwidth]{antenne_magnitude.png}
+		\caption{Gemeten magnitude per testopstelling met de antenne voor PCB 1.}
+		\label{fig:antenne_magnitude}
+	\end{figure}
+
+	De metingen in Figuur~\ref{fig:pcb1_magnitude} bevestigen onze verwachting dat een onderbroken grondvlak het hoogfrequent gedrag verslechtert, doordat de retourstroom een langere weg rond of langs de sleuf moet zoeken. Opstelling~1 (volledig grondvlak) blijft zoals voorspeld het stabielst bij lagere frequenties. Er is duidelijk een vlak verloop nabij $\SI{0}{dB}$ tot rond $\SI{10}{GHz}$, dankzij een kort, laag-impedant retourpad. Opstelling~2, 3 en~4 (met sleuven) vertonen al bij lagere frequenties sneller verliezen, meer rimpels en scherpere resonantiedalen (voornamelijk zichtbaar bij opstelling~3 en~4). Dit komt overeen met de voorspelde toename van lusinductantie, impedantiesprongen en reflecties wanneer het retourpad wordt verstoord.
+
+	De antennemeting (Figuur~\ref{fig:antenne_magnitude}) toont de vorming van een stroomlus en ongewenste antennewerking aan. Waar opstelling~1 bij lage frequenties relatief laag blijft, vertonen opstelling~2, 3 en~4 in het laagfrequente gebied veel hogere pieken. Dit bevestigt dat een verstoord retourpad niet alleen extra verlies of reflecties in de PCB veroorzaakt, maar de structuur ook effectiever laat stralen als een ongewenste lusantenne.
+
+	\subsubsection{PCB 2}
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.95\textwidth]{pcb2_magnitude.png}
+		\caption{Gemeten magnitude per testopstelling voor PCB 2 (Near-end en Far-end).}
+		\label{fig:pcb2_magnitude}
+	\end{figure}
+
+	De resultaten van PCB~2 (Figuur~\ref{fig:pcb2_magnitude}) bevestigen de verwachte invloed van de afstand tussen twee naburige traces en de meetconfiguratie (\textit{near-end} en \textit{far-end}). Zoals voorspeld zorgt een kleine afstand (opstelling~1, bijna tegen elkaar) voor sterkere onderlinge koppeling en een duidelijke verstoring van de karakteristieke impedantie. Naarmate de frequentie stijgt, treden er resonantiedalen en snellere dalingen op. Naarmate de afstand groter wordt (opstelling~2 en~3), neemt de zijdelingse koppeling af. In het \textit{near-end}-signaal zijn bij opstelling~1 en~2 nog duidelijke schommelingen zichtbaar, terwijl opstelling~3 een iets breder, gelijkmatiger verloop toont met specifieke resonantiedips. 
+
+	Doordat bij \textit{near-end} de VNA-aansluitingen aan dezelfde zijde zitten en bij \textit{far-end} gekruist/tegenover elkaar over de trace-paren, verschilt de padlengte en de wisselwerking met de $\SI{50}{\ohm}$-aansluitingen. Dit vertaalt zich in verschuivingen van de resonantiepieken en -dalen en een andere verdeling van de demping over de frequentieband. Waar traces dicht bij elkaar liggen of een extra stroomlus/padverschil ontstaat door de aansluitingsopstelling, ontstaan bij hogere frequenties duidelijkere reflecties en resonantiedips in plaats van een vlakke transmissie.
+
+	\subsubsection{PCB 3}
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.95\textwidth]{pcb3_magnitude.png}
+		\caption{Gemeten magnitude per testopstelling voor PCB 3.}
+		\label{fig:pcb3_magnitude}
+	\end{figure}
+
+	De metingen van PCB~3 (Figuur~\ref{fig:pcb3_magnitude}) sluiten goed aan bij de voorspellingen rond retourpaden, stroomlussen en transmissielijneffecten. Bij opstelling~1 is er geen volledig grondvlak direct onder de trace aanwezig, waardoor het retourpad minder strak begrensd is en er zijdelingse koppeling ontstaat met de naastliggende sporen. Dit is zichtbaar aan de vroege dippen bij lage frequenties en het toenemende verlies en de resonanties richting hogere frequenties, wat wijst op een grotere lusinductantie en mogelijke uitstraling (antennewerking). 
+
+	Een onderliggend grondvlak (opstelling~2) verbetert het retourpad ten opzichte van geen grondvlak, al treden bij hogere frequenties nog steeds transmissielijnresonanties en geleidelijke verliezen op door het skin-effect, diëlektrische verliezen en reflecties. De extra zijdelingse grondvlakken in opstelling~3 zorgen voor sterke veldbegrenzing en koppeling, wat zich uit in duidelijke hoogfrequente rimpels en een scherpe resonantiedip rond $14$ à $\SI{15}{GHz}$. De perforaties in opstelling~4 verstoren de continuïteit van het retourpad en het grondvlak, waardoor de retourstroom lokaal moet omleiden en de lusinductantie en reflecties toenemen. Dit vertaalt zich in meerdere uitgesproken resonantiedalen en extra demping over het frequentiebereik.
+
 
 	\section{Components}
 	\subsection{Doel en verwachtingen}
 	\subsection{Meetopstelling}
-	\subsection{Resultaten}
-	\subsection{Interpretatie}
+	\subsection{Resultaten en interpretatie}
 
 	\section{Motor}
 	\subsection{Doel en verwachtingen}
 	\subsection{Meetopstelling}
-	\subsection{Resultaten}
-	\subsection{Interpretatie}
+	\subsection{Resultaten en interpretatie}
 
 	\section{RED}
 	\subsection{Doel en verwachtingen}
 	\subsection{Meetopstelling}
-	\subsection{Resultaten}
-	\subsection{Interpretatie}
-
-
+	\subsection{Resultaten en interpretatie}
 
 
 	\chapter*{Algemeen besluit}
